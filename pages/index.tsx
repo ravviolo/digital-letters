@@ -8,7 +8,7 @@ const Home: NextPage = () => {
     <main>
       <h1>Home Page</h1>
       <div>
-        <Link href='example'>Example</Link>
+        <Link href='example/1'>Example</Link>
         {user ? (
           <Link href='dashboard'>My Messages</Link>
         ) : (
