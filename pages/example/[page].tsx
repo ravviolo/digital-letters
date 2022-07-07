@@ -26,7 +26,6 @@ type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const ExampleMessages: NextPage<Props> = ({ messages, maxPage }) => {
 
   const router = useRouter();
-  console.log(router.query)
   const page = router.query.page ? parseInt(router.query.page as string) : undefined;
   const baseHref = router.asPath.replace(/\d$/gm, '')
 
