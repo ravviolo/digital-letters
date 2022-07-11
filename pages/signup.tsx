@@ -1,38 +1,40 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
+import { useAuth } from '../hooks/auth/useAuth';
 
 const SignUp = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
   const confirmPassRef = useRef<HTMLInputElement>(null);
-
   const [error, setError] = useState('');
 
-  const handleSignIn: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const router = useRouter()
+  const { signUp, error:signUpError } = useAuth();
+
+  const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setError('');
+    const username = usernameRef.current?.value;
+    const email = emailRef.current?.value;
+    const password = passRef.current?.value;
 
     const formValid = validate(
-      emailRef.current?.value,
-      passRef.current?.value,
-      usernameRef.current?.value,
+      email,
+      password,
+      username,
       confirmPassRef.current?.value,
       setError
     );
 
-   if (formValid) {
-    console.log(
-      'Creating user ',
-      emailRef.current?.value,
-      usernameRef.current?.value,
-      passRef.current?.value,
-    );
-   }
+    if (formValid && username && email && password) {
+      const user = await signUp(username, email, password);
 
-    // todo: Create account
-    // Update displayname with username
-    // Redirect to homepage
+      if (user) {
+        router.push('/')
+      }
+    }
   };
 
   return (
@@ -67,6 +69,7 @@ const SignUp = () => {
         </div>
         <button type='submit'>Sign In</button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
+        {signUpError && <p style={{ color: 'red' }}>{signUpError}</p>}
       </form>
       <p>
         Already have an account? <Link href='/login'>Sign In</Link>
@@ -80,14 +83,19 @@ export const validate = (
   password: string | undefined,
   username: string | null | undefined,
   repeatPassword: string | null | undefined,
-  updateError: (error: string) => void,
+  updateError: (error: string) => void
 ) => {
-  if (!email || !password || repeatPassword === undefined || username === undefined) {
+  if (
+    !email ||
+    !password ||
+    repeatPassword === undefined ||
+    username === undefined
+  ) {
     updateError('Inputs cannot be empty');
     return false;
   }
   if (repeatPassword !== null && password !== repeatPassword) {
-    console.log(password, repeatPassword)
+    console.log(password, repeatPassword);
     updateError("Passwords don't match");
     return false;
   }

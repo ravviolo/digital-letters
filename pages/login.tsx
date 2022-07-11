@@ -1,26 +1,34 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
+import { useAuth } from '../hooks/auth/useAuth';
 
 import { validate } from './signup';
 
 const Login = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
-
   const [error, setError] = useState('');
 
-  const handleLogIn: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const router = useRouter();
+  const { signIn, error:logInError } = useAuth();
+
+  const handleLogIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setError('');
+    const email = emailRef.current?.value;
+    const password = passRef.current?.value;
 
-    const formValid = validate(emailRef.current?.value, passRef.current?.value,null, null, setError);
+    const formValid = validate(email, password, null, null, setError);
 
-    console.log(emailRef.current?.value, passRef.current?.value);
+    if (formValid && email && password) {
+      const user = await signIn(email, password);
 
-    // todo: Login user to firebase
-    // Redirect to homepage
+      if (user) {
+        router.push('/');
+      }
+    }
   };
-
 
   return (
     <div>
@@ -41,11 +49,18 @@ const Login = () => {
         </div>
         <button type='submit'>Log In</button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
+        {logInError && <p style={{ color: 'red' }}>{logInError}</p>}
       </form>
       <p>
         Dont have an account? <Link href='/signup'>Sign Up</Link>
       </p>
-      <button onClick={() => {alert('forgot password')}}>Forgot password?</button>
+      <button
+        onClick={() => {
+          alert('forgot password');
+        }}
+      >
+        Forgot password?
+      </button>
     </div>
   );
 };
