@@ -10,8 +10,8 @@ const SignUp = () => {
   const confirmPassRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
 
-  const router = useRouter()
-  const { signUp, error:signUpError } = useAuth();
+  const router = useRouter();
+  const { signUp, error: signUpError } = useAuth();
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -19,21 +19,21 @@ const SignUp = () => {
     const username = usernameRef.current?.value;
     const email = emailRef.current?.value;
     const password = passRef.current?.value;
+    const confrimPassword = confirmPassRef.current?.value;
 
-    const formValid = validate(
-      email,
-      password,
-      username,
-      confirmPassRef.current?.value,
-      setError
-    );
 
-    if (formValid && username && email && password) {
-      const user = await signUp(username, email, password);
+    if (!username || !email || !password || !confrimPassword) {
+      setError('Inputs cannot be empty');
+      return;
+    }
+    if (password !== confrimPassword) {
+      setError("Passwords don't match");
+      return;
+    }
 
-      if (user) {
-        router.push('/')
-      }
+    const user = await signUp(username, email, password);
+    if (user) {
+      router.push('/');
     }
   };
 
@@ -78,29 +78,5 @@ const SignUp = () => {
   );
 };
 
-export const validate = (
-  email: string | undefined,
-  password: string | undefined,
-  username: string | null | undefined,
-  repeatPassword: string | null | undefined,
-  updateError: (error: string) => void
-) => {
-  if (
-    !email ||
-    !password ||
-    repeatPassword === undefined ||
-    username === undefined
-  ) {
-    updateError('Inputs cannot be empty');
-    return false;
-  }
-  if (repeatPassword !== null && password !== repeatPassword) {
-    console.log(password, repeatPassword);
-    updateError("Passwords don't match");
-    return false;
-  }
-
-  return true;
-};
 
 export default SignUp;

@@ -3,15 +3,13 @@ import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
 
-import { validate } from './signup';
-
 const Login = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
 
   const router = useRouter();
-  const { signIn, error:logInError } = useAuth();
+  const { signIn, error: logInError } = useAuth();
 
   const handleLogIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -19,14 +17,14 @@ const Login = () => {
     const email = emailRef.current?.value;
     const password = passRef.current?.value;
 
-    const formValid = validate(email, password, null, null, setError);
+    if (!email || !password) {
+      setError('Inputs cannot be empty');
+      return
+    }
 
-    if (formValid && email && password) {
-      const user = await signIn(email, password);
-
-      if (user) {
-        router.push('/');
-      }
+    const user = await signIn(email, password);
+    if (user) {
+      router.push('/');
     }
   };
 
