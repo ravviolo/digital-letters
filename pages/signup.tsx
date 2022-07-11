@@ -11,7 +11,7 @@ const SignUp = () => {
   const [error, setError] = useState('');
 
   const router = useRouter();
-  const { signUp, error: signUpError } = useAuth();
+  const { signUp, error: signUpError, loading } = useAuth();
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -67,7 +67,7 @@ const SignUp = () => {
             ref={confirmPassRef}
           />
         </div>
-        <button type='submit'>Sign In</button>
+        {loading ? <p>Registering user...</p> : <button type='submit'>Sign In</button>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {signUpError && <p style={{ color: 'red' }}>{signUpError}</p>}
       </form>

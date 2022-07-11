@@ -9,7 +9,7 @@ const Login = () => {
   const [error, setError] = useState('');
 
   const router = useRouter();
-  const { signIn, error: logInError } = useAuth();
+  const { signIn, error: logInError, loading } = useAuth();
 
   const handleLogIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -45,7 +45,7 @@ const Login = () => {
           <label htmlFor='password'>Password: </label>
           <input type='password' id='password' name='password' ref={passRef} />
         </div>
-        <button type='submit'>Log In</button>
+        {loading ? <p>Logging user...</p> : <button type='submit'>Log In</button>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {logInError && <p style={{ color: 'red' }}>{logInError}</p>}
       </form>
