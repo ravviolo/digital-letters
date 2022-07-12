@@ -4,7 +4,7 @@ import convert from 'xml-js';
 import { XMLConverted } from '../../types/xml.types';
 
 const getUploadedFilePath = (filename: string) =>
-  path.join(process.cwd(), 'data', 'temp', 'uploads', filename);
+  path.join(process.cwd(), 'data', 'uploads', 'temp', filename);
 
 const getExampleFilePath = (filename: string) =>
   path.join(process.cwd(), 'data', 'example', filename);
