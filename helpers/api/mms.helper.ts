@@ -25,7 +25,11 @@ const getMMSPartData = (rawMMS: MMSElement) => {
   } = rawMMS;
 
   const text = getMMSText(part);
-  const imgSrc = getMMSImage(part);
+
+  // todo: Images stored as base64 strings are so long that Firestore complains about reaching maximum document size when writing to Firestore database. Consider creating custom database. For now there will be no images sent as MMS, only MMS text.
+
+  // const imgSrc = getMMSImage(part);
+  const imgSrc = null
 
   return {
     body: {
