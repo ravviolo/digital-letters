@@ -8,7 +8,7 @@ import {
   User,
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { errorCodeToMsg } from '../../helpers/firebase/formatError';
+import { errorCodeToMsg } from '../../helpers/firebase/auth/formatError';
 import { auth } from '../../lib/firebase/firebaseApp';
 
 export const useProvideAuth = () => {

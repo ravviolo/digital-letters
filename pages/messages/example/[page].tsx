@@ -7,19 +7,18 @@ import type {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import PageInput from '../../components/pagination/PageInput';
-import Pagination from '../../components/pagination/Pagination';
+import PageInput from '../../../components/pagination/PageInput';
+import Pagination from '../../../components/pagination/Pagination';
 import {
   PaginatedResponse,
   paginateResponse,
-} from '../../helpers/api/http.helper';
-import { formatMessages } from '../../helpers/api/messages.helper';
-import { convertXML, readXML } from '../../helpers/api/xml.helper';
-import { range } from '../../hooks/usePagination';
-import { Messages } from '../../types/message.types';
-import { MMSBody } from '../../types/mms.types';
-import { SMSBody } from '../../types/sms.types';
+} from '../../../helpers/api/http.helper';
+import { formatMessages } from '../../../helpers/api/messages.helper';
+import { convertXML, readXML } from '../../../helpers/api/xml.helper';
+import { range } from '../../../hooks/usePagination';
+import { Messages } from '../../../types/message.types';
+import { MMSBody } from '../../../types/mms.types';
+import { SMSBody } from '../../../types/sms.types';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -78,7 +77,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const xml = readXML('romeo-juliet-messages.xml', false);
   const converted = convertXML(xml);
   const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet');
-  const { maxPage } = paginateResponse(formattedMessages);
+  const { maxPage } = paginateResponse(formattedMessages, 10);
 
   const pages = range(1, maxPage);
 
@@ -97,7 +96,7 @@ export const getStaticProps: GetStaticProps<PageProps, ContextParams> = async (
     const xml = readXML('romeo-juliet-messages.xml', false);
     const converted = convertXML(xml);
     const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet');
-    const response = paginateResponse(formattedMessages, parseInt(page));
+    const response = paginateResponse(formattedMessages,10, parseInt(page));
 
     return {
       props: {
