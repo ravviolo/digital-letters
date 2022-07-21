@@ -2,29 +2,47 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const Upload = () => {
   const senderRef = useRef<HTMLInputElement>(null);
   const receiverRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const router = useRouter()
+
+  const { user } = useAuth();
 
   const handleUpload: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    const senderName = senderRef.current?.value;
-    const receiverName = receiverRef.current?.value;
+    if (user) {
+      const senderName = senderRef.current?.value;
+      const receiverName = receiverRef.current?.value;
+      const { uid } = user;
 
-    const axiosConfig = { headers: { 'content-type': 'multipart/form-data' } };
-    if (senderName && receiverName && selectedFile) {
-      const formData = new FormData();
-      formData.append('senderName', senderName);
-      formData.append('receiverName', receiverName);
-      formData.append('backupFile', selectedFile, selectedFile.name);
+      const axiosConfig = {
+        headers: { 'content-type': 'multipart/form-data' },
+      };
+      if (senderName && receiverName && selectedFile) {
+        const formData = new FormData();
+        formData.append('senderName', senderName);
+        formData.append('receiverName', receiverName);
+        formData.append('backupFile', selectedFile, selectedFile.name);
+        formData.append('uid', uid);
 
-      try {
-        const { data } = await axios.post('/api/upload', formData, axiosConfig);
-        console.log(data);
-      } catch (err) {
-        console.log(err);
+        try {
+          setIsUploading(true);
+          const { data: docID } = await axios.post(
+            '/api/upload',
+            formData,
+            axiosConfig
+          );
+            router.push(`/messages/${user.uid}/${docID}?page=1`);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setIsUploading(false);
+        }
       }
     }
   };
@@ -61,10 +79,14 @@ const Upload = () => {
             id='backup-file'
             name='backupFile'
             accept='text/xml'
-            onChange={(e) => setSelectedFile(e.target.files && e.target.files[0])}
+            onChange={(e) =>
+              setSelectedFile(e.target.files && e.target.files[0])
+            }
           />
         </div>
-        <button type='submit'>Upload</button>
+        <button type='submit' disabled={isUploading}>
+          Upload
+        </button>
       </form>
     </div>
   );
