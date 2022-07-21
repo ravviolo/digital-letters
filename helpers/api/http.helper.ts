@@ -1,4 +1,3 @@
-import { PAGINATION_LIMIT } from '../../constants';
 import { Messages } from '../../types/message.types';
 import { MMSBody } from '../../types/mms.types';
 import { SMSBody } from '../../types/sms.types';
@@ -16,13 +15,14 @@ export type PaginatedResponse<MessagesType> = {
 
 export const paginateResponse = (
   messages: Messages<SMSBody, MMSBody>,
+  paginationLimit: number,
   page = 1
 ) => {
   const paginatedResponse = {} as PaginatedResponse<typeof messages>;
 
-  const maxPage = Math.ceil(messages.length / PAGINATION_LIMIT);
-  const startIndex = (page - 1) * PAGINATION_LIMIT;
-  const endIndex = page * PAGINATION_LIMIT;
+  const maxPage = Math.ceil(messages.length / paginationLimit);
+  const startIndex = (page - 1) * paginationLimit;
+  const endIndex = page * paginationLimit;
   const paginatedMessages = messages.slice(startIndex, endIndex);
 
   if (startIndex > 0) {
