@@ -11,9 +11,12 @@ const Pagination = ({ currentPage, maxPage, baseHref }: Props) => {
   const siblingCount = 0;
   const paginationRange = usePagination(currentPage, maxPage, siblingCount);
 
+  const nextHref = `${baseHref}${currentPage === maxPage ? maxPage : currentPage + 1}`
+  const prevHref = `${baseHref}${currentPage === 1 ? 1 : currentPage - 1}`
+
   return (
     <div>
-      <Link href={`${baseHref}${currentPage - 1}`}>
+      <Link href={prevHref}>
         <a style={currentPage === 1 ? disabledStyle : {}}>Prev</a>
       </Link>
       {paginationRange?.map((page, idx) => {
@@ -24,7 +27,7 @@ const Pagination = ({ currentPage, maxPage, baseHref }: Props) => {
           </Link>
         );
       })}
-      <Link href={`${baseHref}${currentPage + 1}`}>
+      <Link href={nextHref}>
         <a style={currentPage === maxPage ? disabledStyle : {}}>Next</a>
       </Link>
     </div>
