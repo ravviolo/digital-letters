@@ -22,7 +22,6 @@ interface FormFields {
 const router = createRouter<NextApiRequest, NextApiResponse<ResponseData>>();
 
 router.post(async (req, res) => {
-
   try {
     const { fields, backupFile } = await new Promise<{
       fields: FormFields;
@@ -69,20 +68,16 @@ router.post(async (req, res) => {
         const { messages } = paginateResponse(formattedMessages, 70, page);
         try {
           await addMessagesDataDoc(firestore, docID, page, messages);
-
-        } catch(err) {
-          console.log(err)
+        } catch (err) {
+          console.log(err);
         }
         page++;
       }
       return res.status(201).json(docID);
-    } catch(error) {
-      console.log(error)
-      return res.json('Could not write data to database.')
+    } catch (error) {
+      console.log(error);
+      return res.status(502).json('Could not write data to database.');
     }
-
-
-
   } catch (error: any) {
     deleteXML(error.filename);
     return res.status(500).json(error.message);
