@@ -14,9 +14,10 @@ import {
   VStack,
   HStack,
   useToast,
+  ToastId,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { useAuth } from '../hooks/auth/useAuth';
@@ -37,6 +38,7 @@ const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>();
   const toast = useToast();
+  const emptyFieldsErrorToastRef = useRef<ToastId | null>(null);
   const highlightColor = useColorModeValue('brandBlue.500', 'brandCyan.200');
   const highlightColorDimmed = useColorModeValue(
     'brandBlue.100',
@@ -69,14 +71,20 @@ const Login = () => {
 
   useEffect(() => {
     if (errors.email || errors.password) {
-      toast({
-        title: 'Please provide user credentials',
-        status: 'error',
-        duration: 2000,
-        isClosable: false,
-        variant: 'subtle',
-        position: 'top',
-      });
+      if (!emptyFieldsErrorToastRef.current) {
+        emptyFieldsErrorToastRef.current = toast({
+          title: 'Please provide user credentials',
+          status: 'error',
+          duration: 2000,
+          isClosable: false,
+          variant: 'subtle',
+          position: 'top',
+        });
+      }
+    } else {
+      if (emptyFieldsErrorToastRef.current) {
+        emptyFieldsErrorToastRef.current = null;
+      }
     }
   }, [errors.email, errors.password, toast]);
 
@@ -92,6 +100,12 @@ const Login = () => {
       });
     }
   }, [logInError, toast]);
+
+  useEffect(() => {
+    router.events.on('beforeHistoryChange', toast.closeAll);
+
+    return () => router.events.off('beforeHistoryChange', toast.closeAll);
+  }, [router.events, toast.closeAll]);
 
   return (
     <Flex
@@ -143,6 +157,7 @@ const Login = () => {
                     })}
                     id='email'
                     type='email'
+                    placeholder='little@kittens.com'
                     size={'sm'}
                     focusBorderColor={highlightColor}
                   />
@@ -161,6 +176,7 @@ const Login = () => {
                     })}
                     id='password'
                     type='password'
+                    placeholder='********'
                     size={'sm'}
                     focusBorderColor={highlightColor}
                   />
