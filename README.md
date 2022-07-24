@@ -6,17 +6,16 @@ Project was bootstrapped with [`create-next-app`](https://github.com/vercel/next
 
 ## Table of contents
 
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Screenshots](#screenshots)
-  - [Run Locally](#run-locally)
-    - [Environment Variables](#environment-variables)
-  - [Deployment](#deployment)
-  - [My Process](#my-process)
-  - [Tech Stack](#tech-stack)
-  - [Issues](#issues)
-  - [What I learned](#what-i-learned)
--
+- [Overview](#overview)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Run Locally](#run-locally)
+  - [Environment Variables](#environment-variables)
+- [Deployment](#deployment)
+- [My Process](#my-process)
+- [Tech Stack](#tech-stack)
+- [Issues](#issues)
+- [What I learned](#what-i-learned)
 
 ## Overview
 
@@ -133,7 +132,7 @@ Images sent via MMS are encoded in base64 strings. Those strings are a part of p
 
 Temporary fix: images data is not written to Firestore, only messages that hold text can be saved in database. Perhaps the project will move away from Firebase and use custom database.
 
-API code still formats images correctly, you can check out how images are displayed in website's example page ([Screenshot](<(https://postimg.cc/56vRBzq7)>)).
+API code still formats images correctly, you can check out how images are displayed in website's example page ([Screenshot](https://postimg.cc/56vRBzq7)).
 
 ## What I learned
 
