@@ -170,8 +170,6 @@ const Upload: NextPage = () => {
     return () => router.events.off('beforeHistoryChange', toast.closeAll);
   }, [router.events, toast.closeAll]);
 
-  console.log(errors);
-
   return (
     <Flex
       minH='100vh'
