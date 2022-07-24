@@ -1,6 +1,6 @@
 import { IconButton, IconButtonProps } from '@chakra-ui/react';
 import React from 'react';
-import { useToggleTheme } from '../../hooks/useToggleTheme';
+import { useToggleTheme } from '../../hooks/ui/useToggleTheme';
 
 const ToggleTheme = ({ ...props }: Omit<IconButtonProps, 'aria-label'>) => {
   const { ThemeIcon, iconColor, toggleTheme, oppositeModeText } =
