@@ -1,9 +1,12 @@
 import { MMSElement, MMSPart } from '../../types/mms.types';
 
-export const normalizeMMSes = (mmsElements: MMSElement[]) =>
+export const normalizeMMSes = (
+  mmsElements: MMSElement[],
+  withImages: boolean
+) =>
   mmsElements.map((mms) => {
     const { date, type } = getRootMMSInfo(mms);
-    const MMSBody = getMMSPartData(mms);
+    const MMSBody = getMMSPartData(mms, withImages);
     return {
       date,
       type,
@@ -19,18 +22,21 @@ const getRootMMSInfo = (rawMMS: MMSElement) => {
   };
 };
 
-const getMMSPartData = (rawMMS: MMSElement) => {
+const getMMSPartData = (rawMMS: MMSElement, withImages: boolean) => {
   const {
     parts: { part },
   } = rawMMS;
 
   const text = getMMSText(part);
 
-  // todo: Images stored as base64 strings are so long that Firestore complains about reaching maximum document size when writing to Firestore database. Consider creating custom database. For now there will be no images sent as MMS, only MMS text.
+  // todo: Images stored as base64 strings are so long that Firestore complains about reaching maximum document size when writing to Firestore database. Consider creating custom database. For now images sent as MMS will be displayed only on the example page, for uploading user's backup file there will be no images, only text that was sent as MMS.
 
-  // const imgSrc = getMMSImage(part);
-  const imgSrc = null
+  let imgSrc: string | null = null;
 
+  if (withImages) {
+    imgSrc = getMMSImage(part);
+  }
+  
   return {
     body: {
       text,

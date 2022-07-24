@@ -4,18 +4,16 @@ import type {
   InferGetStaticPropsType,
   NextPage,
 } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import PageInput from '../../../components/pagination/PageInput';
-import Pagination from '../../../components/pagination/Pagination';
+
+import Dashboard from '../../../components/dashboard/Dashboard';
 import {
   PaginatedResponse,
   paginateResponse,
 } from '../../../helpers/api/http.helper';
 import { formatMessages } from '../../../helpers/api/messages.helper';
 import { convertXML, readXML } from '../../../helpers/api/xml.helper';
-import { range } from '../../../hooks/usePagination';
+import { range } from '../../../hooks/ui/usePagination';
 import { Messages } from '../../../types/message.types';
 import { MMSBody } from '../../../types/mms.types';
 import { SMSBody } from '../../../types/sms.types';
@@ -26,44 +24,10 @@ const ExampleMessages: NextPage<Props> = ({ messages, maxPage }) => {
 
   const router = useRouter();
   const page = router.query.page ? parseInt(router.query.page as string) : undefined;
-  const baseHref = router.asPath.replace(/\d$/gm, '')
+  const baseHref = router.asPath.replace(/\d+$/gm, '')
 
   return (
-    <main>
-      <h1>Example Messages</h1>
-      <div>
-        <Link href='/'>Home</Link>
-      </div>
-      <nav>
-        <Pagination
-          maxPage={maxPage}
-          currentPage={page || 1}
-          baseHref={baseHref}
-        />
-        <PageInput
-          maxPage={maxPage}
-          baseHref={baseHref}
-        />
-      </nav>
-
-      <ul>
-        {messages?.map((message, idx) => (
-          <div key={idx}>
-            <h5>{message.author}</h5>
-            <span>{message.date}</span>
-            {message.body.text && <div>{message.body.text}</div>}
-            {message.body.imgSrc && (
-              <Image
-                src={message.body.imgSrc}
-                alt=''
-                height={400}
-                width={300}
-              />
-            )}
-          </div>
-        ))}
-      </ul>
-    </main>
+    <Dashboard baseHref={baseHref} maxPage={maxPage} messages={messages} page={page ?? 1}/>
   );
 
 };
@@ -76,7 +40,7 @@ type ContextParams = { page: string };
 export const getStaticPaths: GetStaticPaths = async () => {
   const xml = readXML('romeo-juliet-messages.xml', false);
   const converted = convertXML(xml);
-  const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet');
+  const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet', true);
   const { maxPage } = paginateResponse(formattedMessages, 10);
 
   const pages = range(1, maxPage);
@@ -95,7 +59,7 @@ export const getStaticProps: GetStaticProps<PageProps, ContextParams> = async (
   if (page) {
     const xml = readXML('romeo-juliet-messages.xml', false);
     const converted = convertXML(xml);
-    const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet');
+    const formattedMessages = formatMessages(converted, 'Romeo', 'Juliet', true);
     const response = paginateResponse(formattedMessages,10, parseInt(page));
 
     return {
@@ -108,3 +72,4 @@ export const getStaticProps: GetStaticProps<PageProps, ContextParams> = async (
     notFound: true,
   };
 };
+

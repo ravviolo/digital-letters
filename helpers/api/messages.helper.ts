@@ -13,13 +13,14 @@ import { normalizeSMSes } from './sms.helper';
 export const formatMessages = (
   xmlData: XMLConverted,
   senderName: string,
-  receiverName: string
+  receiverName: string,
+  withImages: boolean
 ): Messages<SMSBody, MMSBody> => {
   const rawSMSes = xmlData.smses.sms;
   const rawMMSes = xmlData.smses.mms;
 
   const normalizedSMSes = normalizeSMSes(rawSMSes);
-  const normalizedMMSes = normalizeMMSes(rawMMSes);
+  const normalizedMMSes = normalizeMMSes(rawMMSes, withImages);
 
   const normalizedMessages: NormalizedMessages<SMSBody, MMSBody> = [
     ...normalizedSMSes,

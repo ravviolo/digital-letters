@@ -1,82 +1,287 @@
-import Link from 'next/link';
+import {
+  chakra,
+  Box,
+  Button,
+  Container,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  Stack,
+  Text,
+  useColorModeValue,
+  VStack,
+  useToast,
+  ToastId,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
 import { useAuth } from '../hooks/auth/useAuth';
+import LinkButton from '../components/next-link/LinkButton';
+import LinkText from '../components/next-link/LinkText';
+import { toastConfig } from './login';
+import Toast from '../components/toast/Toast';
+
+type SignUpInputs = {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+};
 
 const SignUp = () => {
-  const emailRef = useRef<HTMLInputElement>(null);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const passRef = useRef<HTMLInputElement>(null);
-  const confirmPassRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState('');
-
   const router = useRouter();
   const { signUp, error: signUpError, loading } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm<SignUpInputs>();
+  const toast = useToast();
+  const passErrorToastRef = useRef<ToastId | null>(null);
+  const emptyFieldsErrorToastRef = useRef<ToastId | null>(null);
+  const highlightColor = useColorModeValue('brandBlue.500', 'brandCyan.200');
+  const highlightColorDimmed = useColorModeValue(
+    'brandBlue.100',
+    'brandCyan.400'
+  );
 
-  const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    setError('');
-    const username = usernameRef.current?.value;
-    const email = emailRef.current?.value;
-    const password = passRef.current?.value;
-    const confrimPassword = confirmPassRef.current?.value;
+  const handleSignIn: SubmitHandler<SignUpInputs> = async (
+    userCredentials,
+    e
+  ) => {
+    e?.preventDefault();
 
-
-    if (!username || !email || !password || !confrimPassword) {
-      setError('Inputs cannot be empty');
-      return;
-    }
-    if (password !== confrimPassword) {
-      setError("Passwords don't match");
-      return;
-    }
+    const { email, username, password } = userCredentials;
 
     const user = await signUp(username, email, password);
+
     if (user) {
-      router.push('/');
+      toast({
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='success'
+            title='Account created'
+            description='You will be redirected to homepage'
+          />
+        ),
+      });
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     }
   };
 
-  return (
-    <div>
-      <nav>
-        <Link href='/'>Home</Link>
-      </nav>
+  useEffect(() => {
+    if (errors.confirmPassword && getValues('confirmPassword')) {
+      if (!passErrorToastRef.current) {
+        passErrorToastRef.current = toast({
+          ...toastConfig,
+          render: () => (
+            <Toast status='error' description='Passwords do not match' />
+          ),
+        });
+      }
+    } else {
+      if (passErrorToastRef.current) {
+        passErrorToastRef.current = null;
+      }
+    }
+  }, [errors.confirmPassword, getValues, toast]);
 
-      <h1>Sign Up</h1>
+  useEffect(() => {
+    if (
+      errors.email ||
+      errors.password ||
+      errors.username ||
+      errors.confirmPassword?.type === 'required'
+    ) {
+      if (!emptyFieldsErrorToastRef.current) {
+        emptyFieldsErrorToastRef.current = toast({
+          ...toastConfig,
+          render: () => (
+            <Toast status='error' description='Please enter user credentials' />
+          ),
+        });
+      }
+    } else {
+      if (emptyFieldsErrorToastRef.current) {
+        emptyFieldsErrorToastRef.current = null;
+      }
+    }
+  }, [
+    errors.confirmPassword,
+    errors.email,
+    errors.password,
+    errors.username,
+    toast,
+  ]);
 
-      <form onSubmit={handleSignIn}>
-        <div>
-          <label htmlFor='email'>Email: </label>
-          <input type='email' id='email' name='email' ref={emailRef} />
-        </div>
-        <div>
-          <label htmlFor='username'>Username: </label>
-          <input type='text' id='username' name='username' ref={usernameRef} />
-        </div>
-        <div>
-          <label htmlFor='password'>Password: </label>
-          <input type='password' id='password' name='password' ref={passRef} />
-        </div>
-        <div>
-          <label htmlFor='confrim-password'>Repeat Password: </label>
-          <input
-            type='password'
-            id='confrim-password'
-            name='confrim-password'
-            ref={confirmPassRef}
+  useEffect(() => {
+    if (signUpError) {
+      toast({
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='error'
+            title='Sign up failed'
+            description={signUpError}
           />
-        </div>
-        {loading ? <p>Registering user...</p> : <button type='submit'>Sign In</button>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {signUpError && <p style={{ color: 'red' }}>{signUpError}</p>}
-      </form>
-      <p>
-        Already have an account? <Link href='/login'>Sign In</Link>
-      </p>
-    </div>
+        ),
+      });
+    }
+  }, [signUpError, toast]);
+
+  useEffect(() => {
+    router.events.on('beforeHistoryChange', toast.closeAll);
+
+    return () => router.events.off('beforeHistoryChange', toast.closeAll);
+  }, [router.events, toast.closeAll]);
+
+  return (
+    <Flex
+      minH='100vh'
+      align='center'
+      justify='center'
+      bg={useColorModeValue('gray.50', 'gray.800')}
+    >
+      <Container as='section' maxW='container.sm'>
+        <Stack spacing={8} mx='auto' w='full'>
+          <Stack as='header' align='center'>
+            <Heading fontSize={{ base: '2xl', md: '4xl' }} textAlign='center'>
+              <chakra.span color={highlightColor}>Create</chakra.span> an
+              account
+            </Heading>
+            <Text
+              fontSize={{ base: 'sm', md: 'lg' }}
+              textAlign='center'
+              color='gray.500'
+            >
+              to upload your backup file
+            </Text>
+          </Stack>
+
+          <Box
+            as='main'
+            rounded='lg'
+            bg={useColorModeValue('white', 'gray.700')}
+            boxShadow='lg'
+            p={8}
+            mb={10}
+          >
+            <Stack
+              spacing={{ base: 4, md: 8 }}
+              as='form'
+              onSubmit={handleSubmit(handleSignIn)}
+            >
+              <VStack spacing={4}>
+                <FormControl>
+                  <FormLabel
+                    htmlFor='email'
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    Email
+                  </FormLabel>
+                  <Input
+                    {...register('email', {
+                      required: true,
+                    })}
+                    id='email'
+                    type='email'
+                    placeholder='little@kittens.com'
+                    size={'sm'}
+                    focusBorderColor={highlightColor}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel
+                    htmlFor='username'
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    Username
+                  </FormLabel>
+                  <Input
+                    {...register('username', {
+                      required: true,
+                    })}
+                    id='username'
+                    type='text'
+                    placeholder='Tiger'
+                    size={'sm'}
+                    focusBorderColor={highlightColor}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel
+                    htmlFor='password'
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    Password
+                  </FormLabel>
+                  <Input
+                    {...register('password', {
+                      required: true,
+                    })}
+                    id='password'
+                    type='password'
+                    placeholder='********'
+                    size={'sm'}
+                    focusBorderColor={highlightColor}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel
+                    htmlFor='confirmPassword'
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    Confirm Password
+                  </FormLabel>
+                  <Input
+                    {...register('confirmPassword', {
+                      required: true,
+                      validate: (value) => value === getValues('password'),
+                    })}
+                    id='confirmPassword'
+                    type='password'
+                    placeholder='********'
+                    size={'sm'}
+                    focusBorderColor={highlightColor}
+                  />
+                </FormControl>
+              </VStack>
+              <Stack spacing={3} mt={2}>
+                <Button
+                  isLoading={loading}
+                  loadingText={'Registering...'}
+                  type='submit'
+                  colorScheme={useColorModeValue('brandBlue', 'brandCyan')}
+                >
+                  Sign Up
+                </Button>
+                <LinkButton href='/' variant='outline' colorScheme='gray'>
+                  Back
+                </LinkButton>
+              </Stack>
+            </Stack>
+          </Box>
+          <HStack justify='center'>
+            <Text color='gray.500'>Already have an account? </Text>
+            <LinkText href='/login' fontSize='md' color={highlightColorDimmed}>
+              Sign In
+            </LinkText>
+          </HStack>
+        </Stack>
+      </Container>
+    </Flex>
   );
 };
-
 
 export default SignUp;

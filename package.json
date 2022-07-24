@@ -9,13 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.2.4",
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
     "axios": "^0.27.2",
     "firebase": "^9.9.0",
     "formidable": "^2.0.1",
+    "framer-motion": "^6.5.1",
     "next": "12.2.0",
     "next-connect": "^1.0.0-next.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.2",
+    "react-hook-form": "^7.33.1",
+    "tabler-icons-react": "^1.53.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
