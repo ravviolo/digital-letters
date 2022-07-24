@@ -55,7 +55,7 @@ router.post(async (req, res) => {
     const formattedMessages = formatMessages(
       converted,
       fields.senderName,
-      fields.receiverName
+      fields.receiverName, false
     );
 
     const { maxPage } = paginateResponse(formattedMessages, 70);

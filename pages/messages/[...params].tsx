@@ -1,10 +1,7 @@
 import { NextPage } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import PageInput from '../../components/pagination/PageInput';
-import Pagination from '../../components/pagination/Pagination';
+
 import {
   getMessagesByPage,
   getMessagesInfoDoc,
@@ -13,8 +10,10 @@ import { firestore } from '../../lib/firebase/firebaseApp';
 import { Messages } from '../../types/message.types';
 import { MMSBody } from '../../types/mms.types';
 import { SMSBody } from '../../types/sms.types';
+import Dashboard from '../../components/dashboard/Dashboard';
 
-const Dashboard: NextPage = () => {
+
+const UserMessages: NextPage = () => {
   const [maxPage, setMaxPage] = useState(0);
   const [messages, setMessages] = useState<null | Messages<SMSBody, MMSBody>>(
     null
@@ -26,7 +25,6 @@ const Dashboard: NextPage = () => {
   const page = router.query.page ? parseInt(router.query.page as string) : null;
 
   const baseHref = router.asPath.replace(/\d+$/gm, '');
-  console.log(baseHref)
 
   useEffect(() => {
     (async () => {
@@ -53,40 +51,13 @@ const Dashboard: NextPage = () => {
     })();
   }, [messagesID, page]);
 
-  return (
-    <main>
-      <h1>Example Messages</h1>
-      <div>
-        <Link href='/'>Home</Link>
-      </div>
-      <nav>
-        <Pagination
-          maxPage={maxPage}
-          currentPage={page || 1}
-          baseHref={baseHref}
-        />
-        <PageInput maxPage={maxPage} baseHref={baseHref} />
-      </nav>
+ /* todo: 
+      - Display list of messages to which user has access
+      - Show link to upload when there's no messages
+      - Show loading skeleton when fetching
+  */
 
-      <ul>
-        {messages?.map((message, idx) => (
-          <div key={idx}>
-            <h5>{message.author}</h5>
-            <span>{message.date}</span>
-            {message.body.text && <div>{message.body.text}</div>}
-            {message.body.imgSrc && (
-              <Image
-                src={message.body.imgSrc}
-                alt=''
-                height={400}
-                width={300}
-              />
-            )}
-          </div>
-        ))}
-      </ul>
-    </main>
-  );
+  return <Dashboard messages={messages} baseHref={baseHref} maxPage={maxPage} page={page} />;
 };
 
-export default Dashboard;
+export default UserMessages;
