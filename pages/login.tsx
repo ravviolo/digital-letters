@@ -15,6 +15,7 @@ import {
   HStack,
   useToast,
   ToastId,
+  UseToastOptions,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
@@ -23,10 +24,16 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useAuth } from '../hooks/auth/useAuth';
 import LinkButton from '../components/next-link/LinkButton';
 import LinkText from '../components/next-link/LinkText';
+import Toast from '../components/toast/Toast';
 
 type LoginInputs = {
   email: string;
   password: string;
+};
+
+export const toastConfig: UseToastOptions = {
+  duration: 2000,
+  position: 'top',
 };
 
 const Login = () => {
@@ -56,12 +63,14 @@ const Login = () => {
 
     if (user) {
       toast({
-        title: 'Sign in successful',
-        status: 'success',
-        duration: 2000,
-        isClosable: false,
-        variant: 'subtle',
-        position: 'top',
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='success'
+            title='Sign in successful'
+            description='You will be redirected to homepage'
+          />
+        ),
       });
       setTimeout(() => {
         router.push('/');
@@ -73,12 +82,13 @@ const Login = () => {
     if (errors.email || errors.password) {
       if (!emptyFieldsErrorToastRef.current) {
         emptyFieldsErrorToastRef.current = toast({
-          title: 'Please provide user credentials',
-          status: 'error',
-          duration: 2000,
-          isClosable: false,
-          variant: 'subtle',
-          position: 'top',
+          ...toastConfig,
+          render: () => (
+            <Toast
+              status='error'
+              description='Please provide user credentials'
+            />
+          ),
         });
       }
     } else {
@@ -91,12 +101,14 @@ const Login = () => {
   useEffect(() => {
     if (logInError) {
       toast({
-        title: logInError,
-        status: 'error',
-        duration: 2000,
-        isClosable: false,
-        variant: 'subtle',
-        position: 'top',
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='error'
+            title='Sign in failed'
+            description={logInError}
+          />
+        ),
       });
     }
   }, [logInError, toast]);

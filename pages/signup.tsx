@@ -23,6 +23,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useAuth } from '../hooks/auth/useAuth';
 import LinkButton from '../components/next-link/LinkButton';
 import LinkText from '../components/next-link/LinkText';
+import { toastConfig } from './login';
+import Toast from '../components/toast/Toast';
 
 type SignUpInputs = {
   email: string;
@@ -61,12 +63,14 @@ const SignUp = () => {
 
     if (user) {
       toast({
-        title: 'Account created',
-        status: 'success',
-        duration: 2000,
-        isClosable: false,
-        variant: 'subtle',
-        position: 'top',
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='success'
+            title='Account created'
+            description='You will be redirected to homepage'
+          />
+        ),
       });
       setTimeout(() => {
         router.push('/');
@@ -78,12 +82,10 @@ const SignUp = () => {
     if (errors.confirmPassword && getValues('confirmPassword')) {
       if (!passErrorToastRef.current) {
         passErrorToastRef.current = toast({
-          title: 'Passwords do not match',
-          status: 'error',
-          duration: 2000,
-          isClosable: false,
-          variant: 'subtle',
-          position: 'top',
+          ...toastConfig,
+          render: () => (
+            <Toast status='error' description='Passwords do not match' />
+          ),
         });
       }
     } else {
@@ -102,12 +104,10 @@ const SignUp = () => {
     ) {
       if (!emptyFieldsErrorToastRef.current) {
         emptyFieldsErrorToastRef.current = toast({
-          title: 'Please enter user credentials',
-          status: 'error',
-          duration: 2000,
-          isClosable: false,
-          variant: 'subtle',
-          position: 'top',
+          ...toastConfig,
+          render: () => (
+            <Toast status='error' description='Please enter user credentials' />
+          ),
         });
       }
     } else {
@@ -126,12 +126,14 @@ const SignUp = () => {
   useEffect(() => {
     if (signUpError) {
       toast({
-        title: signUpError,
-        status: 'error',
-        duration: 2000,
-        isClosable: false,
-        variant: 'subtle',
-        position: 'top',
+        ...toastConfig,
+        render: () => (
+          <Toast
+            status='error'
+            title='Sign up failed'
+            description={signUpError}
+          />
+        ),
       });
     }
   }, [signUpError, toast]);
